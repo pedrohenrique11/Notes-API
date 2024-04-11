@@ -23,16 +23,44 @@ export const routes = [
         method: 'POST',
         path: buildRoutePath('/notes'),
         handler: (req, res) => {
-            //const { title, text } = req.body;
+            const { title, text } = req.body;
 
             const note = {
                 id: randomUUID(),
-                title: "title",
-                text: "test text"
+                title,
+                text
             }
 
             database.insert('notes', note)
             
+            return res.writeHead(201).end()
+        }
+    },
+    {
+        method: 'PUT',
+        path: buildRoutePath('/notes/:id'),
+        handler: (req, res) => {
+            const { id } = req.params;
+            const { title, text } = req.body;
+
+            database.update('notes', id, {
+                title,
+                text
+            })
+            
+            return res.writeHead(201).end()
+        }
+    },
+    {
+        method: 'DELETE',
+        path: buildRoutePath('/notes/:id'),
+        handler: (req, res) => {
+            const { id } = req.params;
+            
+            console.log(req.params)
+
+            database.delete('notes', id)
+
             return res.writeHead(201).end()
         }
     }
