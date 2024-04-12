@@ -7,45 +7,52 @@ const database = new Database;
 export const routes = [
     {
         method: 'GET',
-        path: buildRoutePath('/notes'),
+        path: buildRoutePath('/tasks'),
         handler: (req, res) => {
             const { search } = req.query;
 
-            const notes = database.select('notes', search ? {
+            const tasks = database.select('tasks', search ? {
                 title: search,
-                text: search
+                description: search
             } : null )
 
-            return res.end(JSON.stringify(notes))
+            return res.end(JSON.stringify(tasks))
         }
     },
     {
         method: 'POST',
-        path: buildRoutePath('/notes'),
+        path: buildRoutePath('/tasks'),
         handler: (req, res) => {
-            const { title, text } = req.body;
+            const { title, description } = req.body;
+            const create = new Date();
 
             const note = {
                 id: randomUUID(),
                 title,
-                text
+                description,
+                completed_at: null,
+                created_at: create,
+                updated_at: null
             }
 
-            database.insert('notes', note)
+            database.insert('tasks', note)
             
             return res.writeHead(201).end()
         }
     },
     {
         method: 'PUT',
-        path: buildRoutePath('/notes/:id'),
+        path: buildRoutePath('/tasks/:id'),
         handler: (req, res) => {
             const { id } = req.params;
-            const { title, text } = req.body;
+            const { title, description } = req.body;
 
-            database.update('notes', id, {
+            console.log(req.params)
+
+            database.update('tasks', id, {
                 title,
-                text
+                description,
+                updated_at: new Date(),
             })
             
             return res.writeHead(201).end()
@@ -53,15 +60,31 @@ export const routes = [
     },
     {
         method: 'DELETE',
-        path: buildRoutePath('/notes/:id'),
+        path: buildRoutePath('/tasks/:id'),
         handler: (req, res) => {
             const { id } = req.params;
-            
-            console.log(req.params)
 
-            database.delete('notes', id)
+            database.delete('tasks', id)
 
             return res.writeHead(201).end()
+        }
+    },
+    {
+        method: 'PATCH',
+        path: buildRoutePath('/tasks/:id/complete'),
+        handler: (req, res) => {
+            const { id } = req.params;
+
+            database.update('tasks', id, {
+                title,
+                description,
+                created_at,
+                updated_at,
+                completed_at: new Date(),
+            })
+
+            return res.writeHead(204).end()
+            
         }
     }
 ]
